@@ -157,7 +157,7 @@ function DailyReward({}: Props) {
           </Heading>
         </Flex>
 
-        <Flex justifyContent={"space-between"} alignItems={"center"}>
+        {/* <Flex justifyContent={"space-between"} alignItems={"center"}>
           <Flex direction={"column"}>
             <HStack spacing={10}>
               <Text fontSize={"small"}>
@@ -220,7 +220,7 @@ function DailyReward({}: Props) {
               </Text>
             </Box>
           </Box>
-        </Flex>
+        </Flex> */}
       </Flex>
 
       {/* Cards displayed in a grid layout */}

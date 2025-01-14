@@ -235,7 +235,7 @@ const handleTaskCompletion = async (taskId: string) => {
           >
             Daily Tasks
           </Text>
-          <Flex
+          {/* <Flex
             w={"100%"}
             alignItems={"center"}
             mt={4}
@@ -305,7 +305,7 @@ const handleTaskCompletion = async (taskId: string) => {
                 </Text>
               </Box>
             </Box>
-          </Flex>
+          </Flex> */}
         </Box>
 
         <Box

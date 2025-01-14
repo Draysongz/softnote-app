@@ -333,7 +333,7 @@ export default function Homepage() {
               {userData && userData.username}
             </Text>
           </Flex>
-          <Flex
+          {/* <Flex
             w={"100%"}
             alignItems={"center"}
             mt={4}
@@ -404,7 +404,7 @@ export default function Homepage() {
                 </Text>
               </Box>
             </Box>
-          </Flex>
+          </Flex> */}
         </Box>
 
         <Flex

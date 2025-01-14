@@ -153,7 +153,7 @@ export default function Friends() {
           >
             Invite & Earn
           </Text>
-          <Flex
+          {/* <Flex
             w={"100%"}
             alignItems={"center"}
             mt={1}
@@ -223,7 +223,7 @@ export default function Friends() {
                 </Text>
               </Box>
             </Box>
-          </Flex>
+          </Flex> */}
         </Box>
 
         <Box

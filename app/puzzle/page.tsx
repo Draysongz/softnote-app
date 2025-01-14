@@ -343,7 +343,7 @@ useEffect(() => {
             Daily Puzzle
           </Text>
 
-          <Flex
+          {/* <Flex
             w="100%"
             alignItems="center"
             mt={4}
@@ -370,7 +370,7 @@ useEffect(() => {
                 />
               </Flex>
             </Box>
-          </Flex>
+          </Flex> */}
         </Box>
 
         <Flex width="" gap={5}>
