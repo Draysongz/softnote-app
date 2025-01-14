@@ -6,13 +6,13 @@ import {
   Flex,
   Image,
   Icon,
-  Progress,
   useClipboard,
   Input,
   Button,
   HStack,
 } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+// import { Progress } from "@chakra-ui/react";
+// import { ChevronRightIcon } from "@chakra-ui/icons";
 import { CheckIcon } from "@chakra-ui/icons";
 import { FaShareAlt } from "react-icons/fa";
 import { MdContentCopy } from "react-icons/md";
@@ -97,16 +97,16 @@ export default function Friends() {
     }
   }, [user]);
 
-  const calculateProgress = () => {
-    if (levelIndex >= levelNames.length - 1) {
-      return 100;
-    }
-    const currentLevelMin = levelMinPoints[levelIndex];
-    const nextLevelMin = levelMinPoints[levelIndex + 1];
-    const progress =
-      ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
-    return Math.min(progress, 100);
-  };
+  // const calculateProgress = () => {
+  //   if (levelIndex >= levelNames.length - 1) {
+  //     return 100;
+  //   }
+  //   const currentLevelMin = levelMinPoints[levelIndex];
+  //   const nextLevelMin = levelMinPoints[levelIndex + 1];
+  //   const progress =
+  //     ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
+  //   return Math.min(progress, 100);
+  // };
 
   useEffect(() => {
     const currentLevelMin = levelMinPoints[levelIndex];
@@ -118,12 +118,12 @@ export default function Friends() {
     }
   }, [points, levelIndex, levelMinPoints, levelNames.length]);
 
-   const formatProfitPerHour = (profit: number) => {
-     if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
-     if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
-     if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
-     return `${profit}`;
-   };
+  //  const formatProfitPerHour = (profit: number) => {
+  //    if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
+  //    if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
+  //    if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
+  //    return `${profit}`;
+  //  };
 
   return (
     <Box

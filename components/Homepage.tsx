@@ -1,7 +1,8 @@
 "use client";
 
-import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Flex, Text, Image, Avatar, Progress } from "@chakra-ui/react";
+// import { ChevronRightIcon } from "@chakra-ui/icons";
+import { Box, Flex, Text, Image, Avatar } from "@chakra-ui/react";
+// import { Progress } from "@chakra-ui/react"
 // import Link from "next/link";
 import NavigationBar from "@/components/NavigationBar";
 import { useState, useEffect } from "react";
@@ -219,16 +220,16 @@ export default function Homepage() {
     setClicks((prevClicks) => prevClicks.filter((click) => click.id !== id));
   };
 
-  const calculateProgress = () => {
-    if (levelIndex >= levelNames.length - 1) {
-      return 100;
-    }
-    const currentLevelMin = levelMinPoints[levelIndex];
-    const nextLevelMin = levelMinPoints[levelIndex + 1];
-    const progress =
-      ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
-    return Math.min(progress, 100);
-  };
+  // const calculateProgress = () => {
+  //   if (levelIndex >= levelNames.length - 1) {
+  //     return 100;
+  //   }
+  //   const currentLevelMin = levelMinPoints[levelIndex];
+  //   const nextLevelMin = levelMinPoints[levelIndex + 1];
+  //   const progress =
+  //     ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
+  //   return Math.min(progress, 100);
+  // };
 
   useEffect(() => {
     const currentLevelMin = levelMinPoints[levelIndex];
@@ -240,12 +241,12 @@ export default function Homepage() {
     }
   }, [points, levelIndex, levelMinPoints, levelNames.length]);
 
-  const formatProfitPerHour = (profit: number) => {
-    if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
-    if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
-    if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
-    return `${profit}`;
-  };
+  // const formatProfitPerHour = (profit: number) => {
+  //   if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
+  //   if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
+  //   if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
+  //   return `${profit}`;
+  // };
 
   useEffect(() => {
     if (userData) {

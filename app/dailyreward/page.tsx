@@ -3,13 +3,11 @@ import {
   Flex,
   Box,
   Text,
-  HStack,
-  Progress,
   Heading,
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { ChevronRightIcon, Image } from "@chakra-ui/icons";
+// import { ChevronRightIcon, Image } from "@chakra-ui/icons";
 import NavigationBar from "@/components/NavigationBar";
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/context";
@@ -80,16 +78,16 @@ function DailyReward({}: Props) {
       }
      },[user])
 
-      const calculateProgress = () => {
-        if (levelIndex >= levelNames.length - 1) {
-          return 100;
-        }
-        const currentLevelMin = levelMinPoints[levelIndex];
-        const nextLevelMin = levelMinPoints[levelIndex + 1];
-        const progress =
-          ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
-        return Math.min(progress, 100);
-      };
+      // const calculateProgress = () => {
+      //   if (levelIndex >= levelNames.length - 1) {
+      //     return 100;
+      //   }
+      //   const currentLevelMin = levelMinPoints[levelIndex];
+      //   const nextLevelMin = levelMinPoints[levelIndex + 1];
+      //   const progress =
+      //     ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
+      //   return Math.min(progress, 100);
+      // };
 
       useEffect(() => {
         const currentLevelMin = levelMinPoints[levelIndex];

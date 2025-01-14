@@ -4,15 +4,14 @@ import {
   Box,
   Flex,
   Text,
-  Icon,
-  Progress,
   Button,
   useToast,
 } from "@chakra-ui/react";
+// import { Icon, Progress } from "@chakra-ui/react"
 import Data, { CardType } from "@/components/data";
 import Card from "@/components/card";
 import { useState, useEffect } from "react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+// import { ChevronRightIcon } from "@chakra-ui/icons";
 import NavigationBar from "@/components/NavigationBar";
 import { useUser } from "@/context/context";
 
@@ -291,16 +290,16 @@ useEffect(() => {
     );
   }
 
-  const calculateProgress = () => {
-    if (levelIndex >= levelNames.length - 1) {
-      return 100;
-    }
-    const currentLevelMin = levelMinPoints[levelIndex];
-    const nextLevelMin = levelMinPoints[levelIndex + 1];
-    const progress =
-      ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
-    return Math.min(progress, 100);
-  };
+  // const calculateProgress = () => {
+  //   if (levelIndex >= levelNames.length - 1) {
+  //     return 100;
+  //   }
+  //   const currentLevelMin = levelMinPoints[levelIndex];
+  //   const nextLevelMin = levelMinPoints[levelIndex + 1];
+  //   const progress =
+  //     ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
+  //   return Math.min(progress, 100);
+  // };
 
   useEffect(() => {
     const currentLevelMin = levelMinPoints[levelIndex];

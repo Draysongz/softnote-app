@@ -5,8 +5,6 @@ import {
   Text,
   Flex,
   Image,
-  Icon,
-  Progress,
   useToast,
   Drawer,
   DrawerBody,
@@ -16,8 +14,9 @@ import {
   useDisclosure,
   Button
 } from "@chakra-ui/react";
+// import { Icon, Progress } from "@chakra-ui/react"
 import Link from "next/link";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+// import { ChevronRightIcon } from "@chakra-ui/icons";
 import NavigationBar from "@/components/NavigationBar";
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/context";
@@ -95,21 +94,22 @@ export default function DailyTask() {
   useEffect(() => {
     if (user) {
       setPoints(user.coins);
+      console.log(profitPerHour)
       setLevelIndex(user.level);
       setProfitPerHour(user.profitPerHour)
     }
   }, [user]);
 
-  const calculateProgress = () => {
-    if (levelIndex >= levelNames.length - 1) {
-      return 100;
-    }
-    const currentLevelMin = levelMinPoints[levelIndex];
-    const nextLevelMin = levelMinPoints[levelIndex + 1];
-    const progress =
-      ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
-    return Math.min(progress, 100);
-  };
+  // const calculateProgress = () => {
+  //   if (levelIndex >= levelNames.length - 1) {
+  //     return 100;
+  //   }
+  //   const currentLevelMin = levelMinPoints[levelIndex];
+  //   const nextLevelMin = levelMinPoints[levelIndex + 1];
+  //   const progress =
+  //     ((points - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100;
+  //   return Math.min(progress, 100);
+  // };
 
   useEffect(() => {
     const currentLevelMin = levelMinPoints[levelIndex];
@@ -199,12 +199,12 @@ const handleTaskCompletion = async (taskId: string) => {
   }
 };
 
-  const formatProfitPerHour = (profit: number) => {
-    if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
-    if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
-    if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
-    return `${profit}`;
-  };
+  // const formatProfitPerHour = (profit: number) => {
+  //   if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
+  //   if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
+  //   if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
+  //   return `${profit}`;
+  // };
 
 
   return (
