@@ -29,7 +29,7 @@ function HomeContent() {
   );
 }
 
-export default function Home() {
+export default function App() {
   return (
     <HomeContent />
   );
