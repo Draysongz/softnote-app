@@ -26,7 +26,7 @@ export default function Loading() {
         </Box>
 
         <Box>
-          <Image src="teclogo.svg" />
+          <Image src="/softnot.svg" />
         </Box>
     </Flex>
   );
