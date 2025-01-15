@@ -2,7 +2,6 @@
 
 import { Box } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import Homepage from "@/components/Homepage";
 import Loading from "@/components/Loading";
 import Welcome from "@/components/Welcome";
 
