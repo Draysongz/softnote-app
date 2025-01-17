@@ -2,58 +2,42 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type UserData = {
-  id: string;
-  telegramId: string;
-  username: string;
-  photoUrl?: string; // Optional field
-  level: number;
-  coins: number;
-  taps: number;
-  maxTaps: number;
-  refillRate: number;
-  lastRefillTime: Date;
-  slots: number;
-  referralCount: number;
-  referredBy?: string; // Optional field
-  freeSpins: number;
-  multitap: number;
-  tapLimitBoost: number;
-  tappingGuruUses: number;
-  profitPerHour: number;
-  lastEarningsUpdate: Date;
-  lastCheckIn?: Date; // Optional field
-  lastTriviaAttempt?: Date;
-  lastPuzzleAttempt?: Date;
-  checkInStreak: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type UserContextType = {
-  user: UserData | null;
-  setUser: (user: UserData) => void;
-  clearUser: () => void;
-};
+interface UserContextType {
+  user: any;
+  setUser: (user: any) => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  isInitialized: boolean;
+  setIsInitialized: (initialized: boolean) => void;
+}
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserData | null>(null);
-
-  const clearUser = () => setUser(null); // Function to clear user data
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   return (
-    <UserContext.Provider value={{ user, setUser, clearUser }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        isLoading,
+        setIsLoading,
+        isInitialized,
+        setIsInitialized,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
-};
+}
 
-export const useUser = () => {
+export function useUser() {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error("useUser must be used within a UserProvider");
   }
   return context;
-};
+}

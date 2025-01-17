@@ -5,8 +5,9 @@ import { Box, Flex, Text, Image, Avatar } from "@chakra-ui/react";
 // import { Progress } from "@chakra-ui/react"
 // import Link from "next/link";
 import NavigationBar from "@/components/NavigationBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@/context/context";
+import debounce from "lodash/debounce";
 
 // const SmallCardArray = [
 //   {
@@ -69,13 +70,14 @@ const levelMinPoints = [
   1000000000, // Lord
 ];
 
-type UpdateData = Partial<UserData>;
+
 
 export default function Homepage() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [userData, setUserData] = useState<UserData | null>();
   const [levelIndex, setLevelIndex] = useState(0);
   const [coins, setCoins] = useState(0);
+  console.log(coins)
   const [clicks, setClicks] = useState<{ id: number; x: number; y: number }[]>(
     []
   );
@@ -85,128 +87,143 @@ export default function Homepage() {
   const [pointsToAdd, setPointsToAdd] = useState(0);
   const [profitPerHour, setProfitPerHour] = useState(0);
   const [floatingEnergy, setFloatingEnergy] = useState(0);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const updateQueueRef = useRef<{ coins: number; taps: number } | null>(null);
 
+  // Keep a ref for the latest points to use in debounced function
+  const pointsRef = useRef(points);
+  useEffect(() => {
+    pointsRef.current = points;
+  }, [points]);
+
+  // Initialize from user data
   useEffect(() => {
     if (user) {
       setUserData(user);
+      setFloatingEnergy(user.taps);
+      setPoints(user.coins);
+      setProfitPerHour(user.profitPerHour || 0);
     }
   }, [user]);
 
-  const updateUserProfile = async (updatedFields: UpdateData) => {
-    if (!userData || !userData.telegramId) {
-      console.error("User data or telegramId is missing.");
-      return;
-    }
+  // Debounced update function
+  const debouncedUpdate = useCallback(
+    debounce(async (updates: { coins: number; taps: number }) => {
+      if (!user?.telegramId || !updates) return;
 
-    try {
-      const response = await fetch(
-        `/api/updateprofile?userId=${userData.telegramId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedFields),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text(); // Read raw text to handle empty responses
-        console.error(
-          "Failed to update profile:",
-          errorText || "Unknown error"
-        );
-        return null;
-      }
-
-      const updatedUser = await response.json();
-      console.log("Profile updated successfully:", updatedUser);
-      return updatedUser; // Return the updated user if needed
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
-
-  useEffect(() => {
-    const refillTaps = async () => {
+      setIsUpdating(true);
       try {
-        const response = await fetch("/api/refillTaps", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: userData?.telegramId }),
-        });
+        const response = await fetch(
+          `/api/updateprofile?userId=${user.telegramId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updates),
+          }
+        );
 
-        if (response.ok) {
-          const data = await response.json();
-          setFloatingEnergy(data.user.taps); // Update taps with the latest value
-        } else {
-          console.error("Failed to refill taps");
+        if (!response.ok) throw new Error("Update failed");
+
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        setUserData(updatedUser);
+
+        // Process next update in queue if exists
+        if (
+          updateQueueRef.current &&
+          (updateQueueRef.current.coins !== updates.coins ||
+            updateQueueRef.current.taps !== updates.taps)
+        ) {
+          debouncedUpdate(updateQueueRef.current);
+          updateQueueRef.current = null;
         }
       } catch (error) {
-        console.error("Error refilling taps:", error);
+        console.error("Error updating profile:", error);
+      } finally {
+        setIsUpdating(false);
       }
-    };
-    console.log(coins);
+    }, 200), // 200ms debounce
+    [user?.telegramId, setUser]
+  );
 
-    // Set an interval to refill taps every 5 seconds
-    const intervalId = setInterval(refillTaps, 10000);
+  const queueUpdate = useCallback(
+    (newPoints: number, newEnergy: number) => {
+      const updates = { coins: newPoints, taps: newEnergy };
 
-    // Cleanup the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, [userData?.telegramId]);
+      if (isUpdating) {
+        // Queue the update if one is in progress
+        updateQueueRef.current = updates;
+      } else {
+        // Otherwise, trigger the update
+        debouncedUpdate(updates);
+      }
+    },
+    [isUpdating, debouncedUpdate]
+  );
 
   const handleCardClick = async (e: React.TouchEvent<HTMLDivElement>) => {
     if (floatingEnergy <= 0) return;
-    console.log(isFirstImage);
-    setIsFirstImage(false); //
+    setIsFirstImage(false);
 
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-
-    const touches = Array.from(e.changedTouches); // Only handle new touch points
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const newClicks: any = [];
+    const touches = Array.from(e.changedTouches);
     let newPoints = points;
     let newFloatingEnergy = floatingEnergy;
 
-    // Process each touch point
-    touches.forEach((touch) => {
-      const x = touch.clientX - rect.left - rect.width / 2;
-      const y = touch.clientY - rect.top - rect.height / 2;
-
-      // Apply perspective transformation
-      card.style.transform = `perspective(1000px) rotateX(${
-        -y / 10
-      }deg) rotateY(${x / 10}deg)`;
-
-      // Collect clicks and update points
-      newClicks.push({ id: Date.now(), x: touch.pageX, y: touch.pageY });
+    touches.forEach(() => {
       newPoints += pointsToAdd;
       newFloatingEnergy -= 1;
-
-      // Reset card transformation after animation
-      setTimeout(() => {
-        card.style.transform = "";
-      }, 100);
     });
 
-    // Update states after processing all touches
-    setClicks((prev) => [...prev, ...newClicks]);
+    // Optimistic update
     setPoints(newPoints);
     setFloatingEnergy(newFloatingEnergy);
 
-    // Update the user profile in the backend
-    const updatedUser = await updateUserProfile({
-      coins: newPoints,
-      taps: newFloatingEnergy,
-    });
+    // Queue the update
+    queueUpdate(newPoints, newFloatingEnergy);
 
-    if (updatedUser) {
-      console.log("User updated:", updatedUser);
-    }
+    // Handle animations
+    setClicks((prev) => [
+      ...prev,
+      ...touches.map((touch) => ({
+        id: Date.now(),
+        x: touch.pageX,
+        y: touch.pageY,
+      })),
+    ]);
   };
+
+  // Background sync
+  useEffect(() => {
+    if (!user?.telegramId) return;
+
+    const syncInterval = setInterval(async () => {
+      if (isUpdating) return; // Skip sync if update is in progress
+
+      try {
+        const response = await fetch(`/api/getuser?userId=${user.telegramId}`);
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const { user: latestUser } = await response.json();
+
+        // Only update if values are different and no update is queued
+        if (
+          !updateQueueRef.current &&
+          (latestUser.coins !== points || latestUser.taps !== floatingEnergy)
+        ) {
+          setUser(latestUser);
+          setUserData(latestUser);
+          setFloatingEnergy(latestUser.taps);
+          setPoints(latestUser.coins);
+        }
+      } catch (error) {
+        console.error("Error syncing data:", error);
+      }
+    }, 5000); // Sync every 5 seconds
+
+    return () => clearInterval(syncInterval);
+  }, [user?.telegramId, setUser, points, floatingEnergy, isUpdating]);
 
   useEffect(() => {
     const flickerTimer = setTimeout(() => {
@@ -259,34 +276,34 @@ export default function Homepage() {
     }
   }, [userData]);
 
-  useEffect(() => {
-    const handlePPh = async () => {
-      if (user) {
-        const now = new Date();
-        const lastUpdate = user.lastEarningsUpdate
-          ? new Date(user.lastEarningsUpdate)
-          : now; // If null, set to now
-        const elapsedSeconds = Math.floor(
-          (now.getTime() - lastUpdate.getTime()) / 1000
-        );
+  // useEffect(() => {
+  //   const handlePPh = async () => {
+  //     if (user) {
+  //       const now = new Date();
+  //       const lastUpdate = user.lastEarningsUpdate
+  //         ? new Date(user.lastEarningsUpdate)
+  //         : now; // If null, set to now
+  //       const elapsedSeconds = Math.floor(
+  //         (now.getTime() - lastUpdate.getTime()) / 1000
+  //       );
 
-        // Calculate the earned coins since the last update
-        const earnedCoins = (user.profitPerHour / 3600) * elapsedSeconds;
+  //       // Calculate the earned coins since the last update
+  //       const earnedCoins = (user.profitPerHour / 3600) * elapsedSeconds;
 
-        // Update the points and sync with backend
-        const newPoints = user.coins + earnedCoins;
+  //       // Update the points and sync with backend
+  //       const newPoints = user.coins + earnedCoins;
 
-        // Update the backend with new coins and the latest earnings update time
-        await updateUserProfile({ coins: newPoints, lastEarningsUpdate: now });
+  //       // Update the backend with new coins and the latest earnings update time
+  //       await updateUserProfile({ coins: newPoints, lastEarningsUpdate: now });
 
-        setPoints(newPoints);
-      }
-    };
+  //       setPoints(newPoints);
+  //     }
+  //   };
 
-    if (user) {
-      handlePPh();
-    }
-  }, [user]);
+  //   if (user) {
+  //     handlePPh();
+  //   }
+  // }, [user]);
 
   useEffect(() => {
     if (profitPerHour > 0) {

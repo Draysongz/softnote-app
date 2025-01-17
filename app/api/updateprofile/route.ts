@@ -2,29 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Adjust path as necessary
 
 // PATCH request to update user profile
-export async function PATCH(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId'); // Extract userId from query params
-
-  if (!userId) {
-    return NextResponse.json({ message: 'User ID is required' }, { status: 400 });
-  }
-
-  const data = await req.json(); // Parse the request body
-
+export async function PATCH(request: NextRequest) {
   try {
-    if (!data || Object.keys(data).length === 0) {
-      return NextResponse.json({ message: 'No fields provided for update' }, { status: 400 });
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
+    const updates = await request.json();
+
+    // Update user in database
     const updatedUser = await prisma.user.update({
-      where: { telegramId: String(userId) },
-      data,
+      where: { telegramId: userId },
+      data: {
+        coins: updates.coins,
+        taps: updates.taps,
+        lastRefillTime: new Date(),
+      },
     });
 
-    return NextResponse.json(updatedUser, { status: 200 });
+    return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error('Error updating user profile:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    console.error('Error updating profile:', error);
+    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
   }
 }

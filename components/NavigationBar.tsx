@@ -4,6 +4,7 @@ import { Box, Text } from "@chakra-ui/react";
 import React from "react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useUser } from "@/context/context";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -40,12 +41,15 @@ const NavItem: React.FC<NavItemProps> = ({
 
 const NavigationBar: React.FC = () => {
   const [pathname, setPathname] = useState("/");
+  const { isLoading } = useUser();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setPathname(window.location.pathname);
     }
   }, []);
+
+  if (isLoading) return null;
 
   return (
     <nav className="fixed bottom-0 w-full z-40 py-2 pb-6 bg-[#06070A]">
