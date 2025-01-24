@@ -12,7 +12,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
-  Button
+  Button,
 } from "@chakra-ui/react";
 // import { Icon, Progress } from "@chakra-ui/react"
 import Link from "next/link";
@@ -20,8 +20,6 @@ import Link from "next/link";
 import NavigationBar from "@/components/NavigationBar";
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/context";
-
-
 
 interface TaskResponse {
   id: string;
@@ -58,26 +56,24 @@ const levelMinPoints = [
   1000000000, // Lord
 ];
 
-
-
 export default function DailyTask() {
   const { user, setUser } = useUser();
   const [tasks, setTasks] = useState<TaskResponse[]>([]);
 
   const [levelIndex, setLevelIndex] = useState(0);
   const [points, setPoints] = useState(0);
-  const toast = useToast()
-  const [selectedtask, setSelectedTask]= useState<TaskResponse>()
-   const { isOpen, onOpen, onClose } = useDisclosure();
-   const [profitPerHour, setProfitPerHour] = useState(0)
-   const [loading, setLoading] = useState(false)
+  const toast = useToast();
+  const [selectedtask, setSelectedTask] = useState<TaskResponse>();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [profitPerHour, setProfitPerHour] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       setPoints(user.coins);
-      console.log(profitPerHour)
+      console.log(profitPerHour);
       setLevelIndex(user.level);
-      setProfitPerHour(user.profitPerHour)
+      setProfitPerHour(user.profitPerHour);
     }
   }, [user]);
 
@@ -113,72 +109,71 @@ export default function DailyTask() {
   }
 
   useEffect(() => {
-    
     // Fetch tasks and handle loading states
     const loadTasks = async () => {
-      if(!user) return;
+      if (!user) return;
       try {
-      
         const tasksData = await fetchTasks(user.id);
-        console.log(tasksData)
+        console.log(tasksData);
         setTasks(tasksData);
       } catch (error) {
-console.log(error)
+        console.log(error);
+      }
     };
-  }
 
     loadTasks();
   }, [user]);
 
+  const handleTaskCompletion = async (taskId: string) => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const response = await fetch("/api/completeTask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, taskId }),
+      });
 
-const handleTaskCompletion = async (taskId: string) => {
-  if (!user) return;
-  setLoading(true)
-  try {
-    const response = await fetch("/api/completeTask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id, taskId }),
-    });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to claim task reward");
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to claim task reward");
+      // Get the updated task and user points from the response
+      const { task: updatedTask, user: updatedUser } = await response.json();
+
+      // Update tasks with the returned task data
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task
+        )
+      );
+      // Update points with the returned user data
+      setPoints(updatedUser.coins);
+
+      setUser(updatedUser);
+
+      toast({
+        title: "Task reward claimed successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setLoading(false);
+      onClose();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      toast({
+        title: error.message || "Error claiming task reward",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+      setLoading(false);
     }
-
-    // Get the updated task and user points from the response
-    const { task: updatedTask, user: updatedUser } = await response.json();
-
-    // Update tasks with the returned task data
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
-    // Update points with the returned user data
-    setPoints(updatedUser.coins);
-
-    setUser(updatedUser);
-
-    toast({
-      title: "Task reward claimed successfully!",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-    setLoading(false);
-    onClose();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toast({
-      title: error.message || "Error claiming task reward",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-    });
-    onClose();
-    setLoading(false);
-  }
-};
+  };
 
   // const formatProfitPerHour = (profit: number) => {
   //   if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
@@ -186,7 +181,6 @@ const handleTaskCompletion = async (taskId: string) => {
   //   if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
   //   return `${profit}`;
   // };
-
 
   return (
     <Box
@@ -301,7 +295,6 @@ const handleTaskCompletion = async (taskId: string) => {
             SoftNote YouTube
           </Text> */}
 
-
           <Text fontSize={"16px"} fontWeight={500} color={"#fff"}>
             Task List
           </Text>
@@ -351,6 +344,9 @@ const handleTaskCompletion = async (taskId: string) => {
 
                     <Image
                       src={task.claimed ? "/checkmart.svg" : "/arrow.svg"}
+                      w={"30px"}
+                      h={"30px"}
+                      alt={task.claimed ? "checkmark" : "arrow"}
                     />
                   </Flex>
                 </Link>
